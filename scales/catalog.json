@@ -1,0 +1,132 @@
+[
+  {
+    "id": "meantone",
+    "name": "Quarter-comma meantone",
+    "family": "Historical",
+    "file": "scales/meantone.scl",
+    "description": "Pure major thirds; narrow fifths and a wolf fifth.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/meanquar.scl"
+  },
+  {
+    "id": "pythagorean",
+    "name": "Pythagorean",
+    "family": "Historical",
+    "file": "scales/pythagorean.scl",
+    "description": "Twelve pitches built from pure fifths; wide major thirds.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/pyth_12.scl"
+  },
+  {
+    "id": "werckmeister-iii",
+    "name": "Werckmeister III",
+    "family": "Historical",
+    "file": "scales/werckmeister-iii.scl",
+    "description": "A circulating temperament with contrasting key colours.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/werck3.scl"
+  },
+  {
+    "id": "kirnberger-iii",
+    "name": "Kirnberger III",
+    "family": "Historical",
+    "file": "scales/kirnberger-iii.scl",
+    "description": "A circulating temperament retaining a pure C–E major third.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/kirnberger3.scl"
+  },
+  {
+    "id": "vallotti",
+    "name": "Vallotti",
+    "family": "Historical",
+    "file": "scales/vallotti.scl",
+    "description": "Six narrowed fifths and six pure fifths in a circulating temperament.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/vallotti.scl"
+  },
+  {
+    "id": "young",
+    "name": "Young",
+    "family": "Historical",
+    "file": "scales/young.scl",
+    "description": "Thomas Young well temperament, as represented in the Scala archive.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/young.scl"
+  },
+  {
+    "id": "meantone-sixth",
+    "name": "Sixth-comma meantone",
+    "family": "Historical",
+    "file": "scales/meantone-sixth.scl",
+    "description": "A smaller narrowing of fifths than quarter-comma meantone.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/meansixth.scl"
+  },
+  {
+    "id": "meantone-third",
+    "name": "Third-comma meantone",
+    "family": "Historical",
+    "file": "scales/meantone-third.scl",
+    "description": "Meantone with pure minor thirds, associated with Salinas.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/meanthird.scl"
+  },
+  {
+    "id": "just",
+    "name": "Just intonation · 7-limit tritone",
+    "family": "Just intonation",
+    "file": "scales/just.scl",
+    "description": "Robert Rich’s twelve-note JI collection, with a 7/5 tritone.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/ji_12.scl"
+  },
+  {
+    "id": "12edo",
+    "name": "12-EDO · reference",
+    "family": "Equal divisions",
+    "file": "scales/12edo.scl",
+    "description": "12 equal steps of 100.000 cents per octave.",
+    "source": "https://www.huygens-fokker.org/scala/scl_format.html"
+  },
+  {
+    "id": "19edo",
+    "name": "19-EDO",
+    "family": "Equal divisions",
+    "file": "scales/19edo.scl",
+    "description": "19 equal steps of 63.158 cents per octave.",
+    "source": "https://www.huygens-fokker.org/scala/scl_format.html"
+  },
+  {
+    "id": "24edo",
+    "name": "24-EDO",
+    "family": "Equal divisions",
+    "file": "scales/24edo.scl",
+    "description": "24 equal steps of 50.000 cents per octave.",
+    "source": "https://www.huygens-fokker.org/scala/scl_format.html"
+  },
+  {
+    "id": "31edo",
+    "name": "31-EDO",
+    "family": "Equal divisions",
+    "file": "scales/31edo.scl",
+    "description": "31 equal steps of 38.710 cents per octave.",
+    "source": "https://www.huygens-fokker.org/scala/scl_format.html"
+  },
+  {
+    "id": "53edo",
+    "name": "53-EDO",
+    "family": "Equal divisions",
+    "file": "scales/53edo.scl",
+    "description": "53 equal steps of 22.642 cents per octave.",
+    "source": "https://www.huygens-fokker.org/scala/scl_format.html"
+  },
+  {
+    "id": "bohlen-pierce",
+    "name": "Bohlen–Pierce · 13 equal steps",
+    "family": "Beyond the octave",
+    "file": "scales/bohlen-pierce.scl",
+    "description": "Thirteen equal divisions of the 3:1 tritave; uses one key per degree.",
+    "source": "https://www.huygens-fokker.org/docs/scales.zip",
+    "archiveFile": "scl/bohlen-p_et.scl"
+  }
+]
