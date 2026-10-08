@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { parseScala, degreeCents, centsForMidi, frequencyForMidi } from '../src/tuning.js';
+import { parseScala, serializeScala, degreeCents, centsForMidi, frequencyForMidi } from '../src/tuning.js';
 
 const root = new URL('../', import.meta.url);
 const catalog = JSON.parse(await readFile(new URL('scales/catalog.json', root), 'utf8'));
@@ -36,6 +36,40 @@ test('Scala comments, BOM, CRLF, blank description, ratios and labels', () => {
 test('an integer interval is a ratio, never an integer number of cents', () => {
   close(parseScala('Integer ratio\n1\n2').period, 1200);
   close(parseScala('Decimal cents\n1\n2.').period, 2);
+});
+
+test('original Scala numeric values and types retain notation, not pitch labels', () => {
+  const scale = parseScala('Mixed notation\n5\n 100.000000001 label\n100.000000002 ! comment\n +5 / 4 major third\n +700.0000 cents\n2 octave');
+  assert.deepEqual(scale.sourceValues, ['1/1', '100.000000001', '100.000000002', '+5 / 4', '+700.0000', '2']);
+  assert.deepEqual(scale.sourceTypes, ['ratio', 'cents', 'cents', 'ratio', 'cents', 'ratio']);
+  assert.equal(scales.meantone.sourceValues[4], '5/4');
+  assert.equal(scales.meantone.sourceValues[7], '696.57843');
+  assert.equal(scales.meantone.sourceTypes[7], 'cents');
+});
+
+test('Scala serialization preserves ratios, integers and close decimal degrees exactly', () => {
+  const scale = parseScala('! file comment\nMixed notation\n5\n100.000000001 first\n100.000000002 second\n5 / 4 third\n700. fourth\n2 octave');
+  const serialized = serializeScala(scale);
+  assert.equal(serialized, 'Mixed notation\n5\n100.000000001\n100.000000002\n5 / 4\n700.\n2\n');
+  const restored = parseScala(serialized);
+  assert.deepEqual(restored.cents, scale.cents);
+  assert.deepEqual(restored.sourceValues, scale.sourceValues);
+  assert.deepEqual(restored.sourceTypes, scale.sourceTypes);
+  for (const preset of Object.values(scales)) {
+    const roundTrip = parseScala(serializeScala(preset));
+    assert.deepEqual(roundTrip.cents, preset.cents);
+    assert.deepEqual(roundTrip.sourceValues, preset.sourceValues);
+  }
+});
+
+test('Scala serialization supports blank descriptions and limits long descriptions', () => {
+  const empty = parseScala('! comment\n\n1\n2');
+  assert.equal(serializeScala(empty), '\n1\n2\n');
+  assert.equal(parseScala(serializeScala(empty)).description, '');
+  const long = parseScala('x'.repeat(1200) + '\n1\n2');
+  const restored = parseScala(serializeScala(long));
+  assert.equal(restored.description, 'x'.repeat(500));
+  assert.deepEqual(restored.cents, long.cents);
 });
 
 test('malformed and non-playable scales produce useful errors', () => {

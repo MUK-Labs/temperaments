@@ -1,5 +1,6 @@
 import {
   parseScala,
+  serializeScala,
   centsForMidi,
   frequencyForMidi,
   degreeCents,
@@ -34,7 +35,10 @@ const state = {
     : "harpsichord",
   volume: numberParam("volume", 55, 0, 100),
   custom: false,
+  present: query.get("present") === "1",
 };
+document.body.classList.toggle("presenting", state.present);
+
 const active = new Map(),
   pedals = new Map(),
   pendingReleases = new Set(),
@@ -210,24 +214,14 @@ function updateUrl() {
   if (state.a4 !== 440) p.set("a4", state.a4);
   if (state.mapping !== "chromatic") p.set("mapping", state.mapping);
   if (state.volume !== 55) p.set("volume", state.volume);
+  if (state.present) p.set("present", "1");
   url.hash = state.custom
     ? new URLSearchParams({
-        scl: [
-          state.scale.description.slice(0, 500),
-          state.scale.count,
-          ...state.scale.cents
-            .slice(1)
-            .map((v) =>
-              Number.isInteger(v)
-                ? v.toFixed(1)
-                : v.toLocaleString("en-US", {
-                    useGrouping: false,
-                    maximumSignificantDigits: 21,
-                  }),
-            ),
-        ].join("\n"),
+        scl: serializeScala(state.scale),
       }).toString()
-    : "";
+    : state.present || location.hash === "#cents"
+      ? "cents"
+      : "";
   history.replaceState(null, "", url);
 }
 function playableNode(parent, x, y, degree, cents, label, small = false) {
@@ -256,6 +250,138 @@ function playableNode(parent, x, y, degree, cents, label, small = false) {
     }
   });
   return g;
+}
+function renderRuler() {
+  if (!state.scale) return;
+  const scale = state.scale;
+  const { count, period } = scale;
+  const ruler = $("ruler");
+  const bounds = ruler.parentElement.getBoundingClientRect();
+  const viewWidth =
+    state.present && bounds.height > 0
+      ? Math.max(760, (bounds.width / bounds.height) * 255)
+      : 760;
+  ruler.setAttribute("viewBox", `0 0 ${viewWidth} 255`);
+  ruler.replaceChildren();
+  const left = 25,
+    right = viewWidth - 25,
+    w = right - left,
+    X = (c) => left + (c / period) * w;
+  for (let c = 0; c <= period + 0.001; c += 100) {
+    const x = X(c);
+    add(ruler, "line", {
+      x1: x,
+      x2: x,
+      y1: 34,
+      y2: 211,
+      stroke: "#eeeae5",
+      "stroke-width": 1,
+    });
+    add(
+      ruler,
+      "text",
+      {
+        x,
+        y: 229,
+        "text-anchor": "middle",
+        fill: "#8b817a",
+        "font-family": "monospace",
+        "font-size": 11,
+      },
+      String(c),
+    );
+  }
+  for (const y of [78, 170])
+    add(ruler, "line", {
+      x1: left,
+      x2: right,
+      y1: y,
+      y2: y,
+      stroke: "#dad4cc",
+      "stroke-width": 1,
+    });
+  add(
+    ruler,
+    "text",
+    {
+      x: left,
+      y: 25,
+      fill: "#8b817a",
+      "font-family": "Arial",
+      "font-size": 10,
+      "letter-spacing": 1.4,
+    },
+    "12-EDO REFERENCE",
+  );
+  add(
+    ruler,
+    "text",
+    {
+      x: left,
+      y: 134,
+      fill: "#a01414",
+      "font-family": "Arial",
+      "font-size": 10,
+      "letter-spacing": 1.4,
+    },
+    "SELECTED SCALE",
+  );
+  for (let c = 0; c <= period + 0.001; c += 100) {
+    const x = X(c);
+    add(ruler, "circle", {
+      cx: x,
+      cy: 78,
+      r: 4,
+      fill: "white",
+      stroke: "#a9a096",
+      "stroke-width": 1,
+    });
+    if (c % 200 === 0 || period <= 1200)
+      add(
+        ruler,
+        "text",
+        {
+          x,
+          y: 62,
+          "text-anchor": "middle",
+          fill: "#8b817a",
+          "font-family": "Arial",
+          "font-size": 10,
+        },
+        names[mod(state.root + c / 100, 12)],
+      );
+  }
+  for (let i = 0; i <= count; i++) {
+    const cents = scale.cents[i],
+      x = X(cents),
+      refC = Math.round(cents / 100) * 100;
+    add(ruler, "line", {
+      x1: X(refC),
+      y1: 85,
+      x2: x,
+      y2: 161,
+      stroke: "#d5a39c",
+      "stroke-width": 1,
+      class: "tuning-connector",
+    });
+    const label = count === 12 ? names[mod(state.root + i, 12)] : String(i);
+    playableNode(ruler, x, 170, i, cents, label, count > 24);
+    if (count <= 24 || i % Math.ceil(count / 24) === 0)
+      add(
+        ruler,
+        "text",
+        {
+          x,
+          y: 198,
+          "text-anchor": "middle",
+          fill: "#a01414",
+          "font-family": "monospace",
+          "font-size": 10,
+        },
+        signed(cents - refC),
+      );
+  }
+  highlight();
 }
 function renderVisuals() {
   const scale = state.scale,
@@ -376,132 +502,14 @@ function renderVisuals() {
     },
     `${noteName(state.root)} · ${baseFrequency().toFixed(2)} Hz`,
   );
-  const ruler = $("ruler");
-  ruler.replaceChildren();
-  const left = 25,
-    right = 735,
-    w = right - left,
-    X = (c) => left + (c / period) * w;
-  for (let c = 0; c <= period + 0.001; c += 100) {
-    const x = X(c);
-    add(ruler, "line", {
-      x1: x,
-      x2: x,
-      y1: 34,
-      y2: 211,
-      stroke: "#eeeae5",
-      "stroke-width": 1,
-    });
-    add(
-      ruler,
-      "text",
-      {
-        x,
-        y: 229,
-        "text-anchor": "middle",
-        fill: "#8b817a",
-        "font-family": "monospace",
-        "font-size": 11,
-      },
-      String(c),
-    );
-  }
-  for (const y of [78, 170])
-    add(ruler, "line", {
-      x1: left,
-      x2: right,
-      y1: y,
-      y2: y,
-      stroke: "#dad4cc",
-      "stroke-width": 1,
-    });
-  add(
-    ruler,
-    "text",
-    {
-      x: left,
-      y: 25,
-      fill: "#8b817a",
-      "font-family": "Arial",
-      "font-size": 10,
-      "letter-spacing": 1.4,
-    },
-    "12-EDO REFERENCE",
-  );
-  add(
-    ruler,
-    "text",
-    {
-      x: left,
-      y: 134,
-      fill: "#a01414",
-      "font-family": "Arial",
-      "font-size": 10,
-      "letter-spacing": 1.4,
-    },
-    "SELECTED SCALE",
-  );
-  for (let c = 0; c <= period + 0.001; c += 100) {
-    const x = X(c);
-    add(ruler, "circle", {
-      cx: x,
-      cy: 78,
-      r: 4,
-      fill: "white",
-      stroke: "#a9a096",
-      "stroke-width": 1,
-    });
-    if (c % 200 === 0 || period <= 1200)
-      add(
-        ruler,
-        "text",
-        {
-          x,
-          y: 62,
-          "text-anchor": "middle",
-          fill: "#8b817a",
-          "font-family": "Arial",
-          "font-size": 10,
-        },
-        names[mod(state.root + c / 100, 12)],
-      );
-  }
-  for (let i = 0; i <= count; i++) {
-    const cents = scale.cents[i],
-      x = X(cents),
-      refC = Math.round(cents / 100) * 100;
-    add(ruler, "line", {
-      x1: X(refC),
-      y1: 85,
-      x2: x,
-      y2: 161,
-      stroke: "#d5a39c",
-      "stroke-width": 1,
-      class: "tuning-connector",
-    });
-    const label = count === 12 ? names[mod(state.root + i, 12)] : String(i);
-    playableNode(ruler, x, 170, i, cents, label, count > 24);
-    if (count <= 24 || i % Math.ceil(count / 24) === 0)
-      add(
-        ruler,
-        "text",
-        {
-          x,
-          y: 198,
-          "text-anchor": "middle",
-          fill: "#a01414",
-          "font-family": "monospace",
-          "font-size": 10,
-        },
-        signed(cents - refC),
-      );
-  }
+  renderRuler();
   const tbody = $("interval-table");
   tbody.replaceChildren();
   for (let i = 0; i <= count; i++) {
     const row = document.createElement("tr");
     [
       i,
+      scale.sourceValues[i] + (scale.sourceTypes[i] === "cents" ? " ¢" : ""),
       scale.cents[i].toFixed(3),
       i ? (scale.cents[i] - scale.cents[i - 1]).toFixed(3) : "—",
       signed(scale.cents[i] - Math.round(scale.cents[i] / 100) * 100),
@@ -843,6 +851,68 @@ async function loadFile(upload) {
   }
 }
 
+function updateFullscreenControl() {
+  $("fullscreen-toggle").textContent = document.fullscreenElement
+    ? "Leave fullscreen"
+    : "Enter fullscreen";
+  $("fullscreen-toggle").setAttribute(
+    "aria-pressed",
+    String(Boolean(document.fullscreenElement)),
+  );
+}
+function setPresentation(present, focus = false) {
+  state.present = present;
+  document.body.classList.toggle("presenting", present);
+  $("presentation-toggle").setAttribute("aria-pressed", String(present));
+  $("presentation-status").textContent = "";
+  updateUrl();
+  requestAnimationFrame(() => {
+    renderRuler();
+    $("cents").scrollIntoView({ block: "start" });
+    if (focus)
+      $(present ? "scale-select" : "presentation-toggle").focus({
+        preventScroll: true,
+      });
+  });
+}
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else if (document.documentElement.requestFullscreen) {
+      await document.documentElement.requestFullscreen();
+    } else {
+      $("presentation-status").textContent =
+        "Fullscreen is unavailable here. Presentation view still fills the browser window.";
+    }
+  } catch {
+    $("presentation-status").textContent =
+      "Your browser kept this view in the window. You can still project it.";
+  }
+  updateFullscreenControl();
+}
+$("presentation-toggle").addEventListener("click", () => {
+  setPresentation(true, true);
+  // Fullscreen requires this explicit click; URL startup uses the window-filling view.
+  if (!document.fullscreenElement) toggleFullscreen();
+});
+$("fullscreen-toggle").addEventListener("click", toggleFullscreen);
+$("presentation-exit").addEventListener("click", () => {
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  setPresentation(false, true);
+});
+document.addEventListener("fullscreenchange", updateFullscreenControl);
+document.querySelector(".tuning-anchor").addEventListener("click", (event) => {
+  // Imported scales already occupy the URL fragment; keep their share data intact.
+  if (state.custom) {
+    event.preventDefault();
+    $("cents").scrollIntoView({ block: "start" });
+  }
+});
+const rulerObserver = new ResizeObserver(() => renderRuler());
+rulerObserver.observe($("ruler").parentElement);
+updateFullscreenControl();
+
 $("audio-start").addEventListener("click", startAudio);
 $("tuned-mode").addEventListener("click", () => setMode(false));
 $("reference-mode").addEventListener("click", () => setMode(true));
@@ -1062,6 +1132,11 @@ async function init() {
       await selectScale(id);
     }
     setMode(state.reference);
+    if (state.present) setPresentation(true);
+    else if (location.hash === "#cents")
+      requestAnimationFrame(() =>
+        $("cents").scrollIntoView({ block: "start" }),
+      );
     if (!navigator.requestMIDIAccess) {
       $("midi-status").textContent =
         "Web MIDI is unavailable in this browser. Use Chrome or Edge for a controller; the screen keyboard and MIDI files work here.";

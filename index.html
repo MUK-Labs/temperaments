@@ -44,47 +44,132 @@
           what changes<br />when equal is no longer the rule.
         </p>
       </section>
-      <div id="notice" class="notice" role="status" hidden></div>
-      <section class="controls" aria-label="Tuning controls">
-        <div class="field scale-field">
-          <label for="scale-select">01 / TEMPERAMENT</label
-          ><select id="scale-select" disabled>
-            <option>Loading Scala scales…</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="instrument">02 / SOUND</label
-          ><select id="instrument">
-            <option value="harpsichord">Harpsichord</option>
-            <option value="piano">Piano</option>
-            <option value="sine">Sine tone</option>
-          </select>
-        </div>
-        <div class="field compare-field">
-          <span class="control-label" id="compare-label">03 / COMPARE</span>
-          <div class="segmented" role="group" aria-labelledby="compare-label">
-            <button id="tuned-mode" class="selected" aria-pressed="true">
-              Temperament</button
-            ><button id="reference-mode" aria-pressed="false">
-              12-EDO reference
+      <section id="cents" class="tuning-view" aria-label="Tuning presentation">
+        <div class="tuning-toolbar">
+          <a class="tuning-anchor" href="#cents">TUNING, AT A GLANCE</a>
+          <span
+            id="presentation-status"
+            class="presentation-status"
+            role="status"
+          ></span>
+          <div class="presentation-actions">
+            <button
+              id="presentation-toggle"
+              class="small-button"
+              type="button"
+              aria-controls="cents"
+              aria-pressed="false"
+            >
+              Presentation view ↗
+            </button>
+            <button
+              id="fullscreen-toggle"
+              class="small-button presentation-only"
+              type="button"
+            >
+              Enter fullscreen
+            </button>
+            <button
+              id="presentation-exit"
+              class="text-button presentation-only"
+              type="button"
+            >
+              Exit presentation
             </button>
           </div>
         </div>
+        <div id="notice" class="notice" role="status" hidden></div>
+        <section class="controls" aria-label="Tuning controls">
+          <div class="field scale-field">
+            <label for="scale-select">01 / TEMPERAMENT</label
+            ><select id="scale-select" disabled>
+              <option>Loading Scala scales…</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="instrument">02 / SOUND</label
+            ><select id="instrument">
+              <option value="harpsichord">Harpsichord</option>
+              <option value="piano">Piano</option>
+              <option value="sine">Sine tone</option>
+            </select>
+          </div>
+          <div class="field compare-field">
+            <span class="control-label" id="compare-label">03 / COMPARE</span>
+            <div class="segmented" role="group" aria-labelledby="compare-label">
+              <button id="tuned-mode" class="selected" aria-pressed="true">
+                Temperament</button
+              ><button id="reference-mode" aria-pressed="false">
+                12-EDO reference
+              </button>
+            </div>
+          </div>
+        </section>
+        <section class="visual-panel" aria-label="Visual tuning comparison">
+          <div class="visual-header">
+            <div>
+              <span class="eyebrow" id="scale-family"
+                >HISTORICAL TEMPERAMENT</span
+              >
+              <h2 id="scale-title">Loading…</h2>
+            </div>
+            <div class="legend">
+              <span><i class="swatch tuned"></i>Selected scale</span
+              ><span><i class="swatch reference"></i>12-EDO</span>
+            </div>
+          </div>
+          <div class="visual-grid">
+            <div class="ruler-wrap">
+              <div class="chart-kicker">
+                <span id="period-label">THE OCTAVE, IN CENTS</span
+                ><span id="period-value">1,200 ¢</span>
+              </div>
+              <div class="ruler-scroll">
+                <svg
+                  id="ruler"
+                  viewBox="0 0 760 255"
+                  role="group"
+                  aria-label="Playable cents ruler"
+                ></svg>
+              </div>
+              <div class="readout" aria-live="polite">
+                <div>
+                  <span class="micro-label">LAST NOTE</span
+                  ><strong id="note-name">—</strong>
+                </div>
+                <div>
+                  <span class="micro-label">FREQUENCY</span
+                  ><strong id="note-frequency">— <small>Hz</small></strong>
+                </div>
+                <div>
+                  <span class="micro-label">FROM 12-EDO</span
+                  ><strong id="note-delta">— <small>¢</small></strong>
+                </div>
+              </div>
+              <p class="scale-description" id="scale-description"></p>
+              <div class="scale-tools">
+                <button id="play-scale" class="text-button">
+                  ↗ Hear the scale</button
+                ><button id="play-chord" class="text-button">
+                  ♫ Try a major chord</button
+                ><a id="scale-source" class="text-button" href="scales/"
+                  >View Scala source ↗</a
+                >
+              </div>
+            </div>
+          </div>
+          <div class="visual-bottom">
+            <span id="mapping-summary">C4 anchor · 12 keys per octave</span
+            ><button id="share" class="text-button">Copy this setup ↗</button>
+          </div>
+        </section>
       </section>
-      <section class="visual-panel" aria-label="Visual tuning comparison">
-        <div class="visual-header">
-          <div>
-            <span class="eyebrow" id="scale-family"
-              >HISTORICAL TEMPERAMENT</span
-            >
-            <h2 id="scale-title">Loading…</h2>
-          </div>
-          <div class="legend">
-            <span><i class="swatch tuned"></i>Selected scale</span
-            ><span><i class="swatch reference"></i>12-EDO</span>
-          </div>
-        </div>
-        <div class="visual-grid">
+      <section
+        class="exploration-grid"
+        aria-label="Explore the tuning in detail"
+      >
+        <section class="circle-card" aria-labelledby="circle-heading">
+          <h2 id="circle-heading">Around the period</h2>
           <div class="wheel-wrap">
             <svg
               id="wheel"
@@ -96,49 +181,40 @@
               Click a note to hear its place in the circle.
             </p>
           </div>
-          <div class="ruler-wrap">
-            <div class="chart-kicker">
-              <span id="period-label">THE OCTAVE, IN CENTS</span
-              ><span id="period-value">1,200 ¢</span>
+        </section>
+        <details class="detail-card interval-detail" open>
+          <summary>A closer look at the intervals <span>+</span></summary>
+          <div class="detail-content">
+            <p class="help-text">
+              A cent is 1/100 of an equal-tempered semitone. An octave spans
+              1,200 cents. Unequal steps change interval sizes, beating, and the
+              character of a key.
+            </p>
+            <p class="help-text scala-value-note">
+              Original ratios or cent values from the Scala file; 1/1 is
+              implicit.
+            </p>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Degree</th>
+                    <th>Scala value</th>
+                    <th>Cents</th>
+                    <th>Step (¢)</th>
+                    <th>Nearest 12-EDO Δ</th>
+                  </tr>
+                </thead>
+                <tbody id="interval-table"></tbody>
+              </table>
             </div>
-            <div class="ruler-scroll">
-              <svg
-                id="ruler"
-                viewBox="0 0 760 255"
-                role="group"
-                aria-label="Playable cents ruler"
-              ></svg>
-            </div>
-            <div class="readout" aria-live="polite">
-              <div>
-                <span class="micro-label">LAST NOTE</span
-                ><strong id="note-name">—</strong>
-              </div>
-              <div>
-                <span class="micro-label">FREQUENCY</span
-                ><strong id="note-frequency">— <small>Hz</small></strong>
-              </div>
-              <div>
-                <span class="micro-label">FROM 12-EDO</span
-                ><strong id="note-delta">— <small>¢</small></strong>
-              </div>
-            </div>
-            <p class="scale-description" id="scale-description"></p>
-            <div class="scale-tools">
-              <button id="play-scale" class="text-button">
-                ↗ Hear the scale</button
-              ><button id="play-chord" class="text-button">
-                ♫ Try a major chord</button
-              ><a id="scale-source" class="text-button" href="scales/"
-                >View Scala source ↗</a
-              >
-            </div>
+            <p class="help-text">
+              For scales with more or fewer than 12 notes, the table compares
+              each degree with the nearest 100-cent position; the last-note
+              readout compares the actual MIDI key.
+            </p>
           </div>
-        </div>
-        <div class="visual-bottom">
-          <span id="mapping-summary">C4 anchor · 12 keys per octave</span
-          ><button id="share" class="text-button">Copy this setup ↗</button>
-        </div>
+        </details>
       </section>
       <section class="performance" aria-label="Play and listen">
         <div class="section-heading">
@@ -231,7 +307,7 @@
         </div>
       </section>
       <section class="details-grid">
-        <details class="detail-card">
+        <details id="tuning-settings" class="detail-card">
           <summary>Tuning & mapping <span>+</span></summary>
           <div class="detail-content">
             <div class="settings-grid">
@@ -273,34 +349,6 @@
             </p>
           </div>
         </details>
-        <details class="detail-card">
-          <summary>A closer look at the intervals <span>+</span></summary>
-          <div class="detail-content">
-            <p class="help-text">
-              A cent is 1/100 of an equal-tempered semitone. An octave spans
-              1,200 cents. Unequal steps change interval sizes, beating, and the
-              character of a key.
-            </p>
-            <div class="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Degree</th>
-                    <th>Cents</th>
-                    <th>Step (¢)</th>
-                    <th>Nearest 12-EDO Δ</th>
-                  </tr>
-                </thead>
-                <tbody id="interval-table"></tbody>
-              </table>
-            </div>
-            <p class="help-text">
-              For scales with more or fewer than 12 notes, the table compares
-              each degree with the nearest 100-cent position; the last-note
-              readout compares the actual MIDI key.
-            </p>
-          </div>
-        </details>
       </section>
       <div class="about-line">
         <p>
@@ -314,7 +362,7 @@
     </main>
     <footer>
       <a href="https://muk.ac.at/"
-        >Musik und Kunst Privatuniversität der Stadt Wien</a
+        >Musik und Kunst Privatuniversität der Stadt Wien · Institut I</a
       ><span>Concept & development · Adrián Artacho</span>
     </footer>
     <noscript

@@ -5,6 +5,7 @@ const OCTAVE_TOLERANCE = 0.01;
 /**
  * Read a playable, ascending Scala scale. Degree 0 (1/1) is implicit in .scl files.
  * Returns N + 1 cent values: unison, intermediate degrees, and the repeating period.
+ * sourceValues/sourceTypes retain the original numeric notation at those indices.
  */
 export function parseScala(text, filename = '') {
   const prefix = filename ? `${filename}: ` : '';
@@ -30,9 +31,11 @@ export function parseScala(text, filename = '') {
     fail(`Declared ${count} intervals, but found ${entries.length}.`);
   }
   const cents = [0];
+  const sourceValues = ['1/1'];
+  const sourceTypes = ['ratio'];
   for (const line of entries) {
     const token = line.value;
-    let value;
+    let value, sourceValue, sourceType;
     // Numeric labels must be separated by whitespace. Ratio members may have spaces.
     const ratio = token.match(/^(\+?\d+)\s*\/\s*(\+?\d+)(?=\s|$)/);
     const decimal = token.match(/^([+-]?(?:\d+\.\d*|\.\d+))(?=\s|$)/);
@@ -44,14 +47,20 @@ export function parseScala(text, filename = '') {
         fail(`Line ${line.number}: ratios need positive, safe integer numerator and denominator.`);
       }
       value = 1200 * Math.log2(numerator / denominator);
+      sourceValue = ratio[0];
+      sourceType = 'ratio';
     } else if (decimal) {
       value = Number(decimal[1]);
+      sourceValue = decimal[0];
+      sourceType = 'cents';
     } else if (integer && !token.slice(integer[0].length).trimStart().startsWith('/')) {
       const numerator = Number(integer[1]);
       if (!Number.isSafeInteger(numerator) || numerator <= 0) {
         fail(`Line ${line.number}: an integer interval must be a positive ratio to 1.`);
       }
       value = 1200 * Math.log2(numerator);
+      sourceValue = integer[0];
+      sourceType = 'ratio';
     } else {
       fail(`Line ${line.number}: invalid pitch “${token}”. Use decimal cents (100.0) or an integer ratio (9/8).`);
     }
@@ -59,8 +68,20 @@ export function parseScala(text, filename = '') {
       fail(`Line ${line.number}: intervals must be positive and strictly ascending after the implicit 1/1.`);
     }
     cents.push(value);
+    sourceValues.push(sourceValue);
+    sourceTypes.push(sourceType);
   }
-  return { description, count, cents, period: cents[count], raw: text };
+  return { description, count, cents, period: cents[count], raw: text, sourceValues, sourceTypes };
+}
+
+/** Write a concise Scala file without rounding or converting its source intervals. */
+export function serializeScala(scale) {
+  assertScale(scale);
+  if (!Array.isArray(scale.sourceValues) || scale.sourceValues.length !== scale.count + 1) {
+    throw new TypeError('Expected a parsed Scala scale with original interval values.');
+  }
+  const description = String(scale.description ?? '').replace(/[\r\n]+/g, ' ').slice(0, 500);
+  return [description, String(scale.count), ...scale.sourceValues.slice(1)].join('\n') + '\n';
 }
 
 function assertScale(scale) {

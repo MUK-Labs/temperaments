@@ -15,7 +15,18 @@ Open the [instrument](https://adrianartacho.github.io/temperaments/), enable sou
 - **Share a setup:** use “Copy this setup.” Imported scales are embedded in the URL fragment; MIDI performances are not shared.
 - **All notes off:** use the button or `Esc`. Playback pauses when the page becomes hidden.
 
-The wheel places the selected tuning around its repeating period, next to 100-cent reference positions. The linear view draws each selected pitch against the nearest 12-EDO position. The interval table reports exact cents and step sizes. For non-octave scales, the display explicitly changes to a repeating-period view.
+The wheel places the selected tuning around its repeating period, next to 100-cent reference positions. The linear view draws each selected pitch against the nearest 12-EDO position. The interval table reports exact cents, step sizes, and the original Scala values: ratios remain ratios, while decimal cent values are marked with ¢. The implicit unison is shown as 1/1. For non-octave scales, the display explicitly changes to a repeating-period view.
+
+## Classroom presentation
+
+The cents ruler uses the full content width. Directly below, the tuning circle sits beside the open interval table.
+
+- [Jump to the ruler](https://adrianartacho.github.io/temperaments/#cents) with the `#cents` anchor.
+- [Open presentation view](https://adrianartacho.github.io/temperaments/?present=1) with `present=1` (or append `&present=1` to existing parameters). It fills the browser window with the ruler and the temperament, sound, and comparison menus; the circle and other sections are hidden.
+- Click **Enter fullscreen** to hide the browser chrome. A URL cannot automatically activate browser fullscreen because the Fullscreen API requires a user gesture. The **Presentation view** button enters the focused layout and requests fullscreen in the same click. If fullscreen is unavailable, the focused layout still works.
+- **Leave fullscreen** keeps the focused view; **Exit presentation** restores the complete page. `Esc` still stops all sound and can leave browser fullscreen. MIDI input and a running MIDI file keep working when switching views.
+
+Shared setup links retain presentation mode, and imported-scale links retain the original ratios and decimal precision.
 
 ## Keyboard mapping and pitch reference
 
@@ -44,6 +55,7 @@ Example: [Werckmeister III, sine tones](https://adrianartacho.github.io/temperam
 | `a4` | Reference-grid frequency, default `440` |
 | `mapping` | `chromatic` (default) or `sequential` |
 | `volume` | 0–100; default `55` |
+| `present` | `1` opens the focused classroom view; omitted by default |
 
 The interface keeps its URL in sync with these settings. An imported scale uses `scale=custom` and a `#scl=…` fragment with a concise Scala representation. Audio and MIDI permission are always started by the visitor's gesture; URLs never autoplay.
 
@@ -91,7 +103,7 @@ For the repository's initial activation, select **Settings → Pages → Build a
 
 ## Sources and credits
 
-Concept and development: **Adrián Artacho**. Institutional identity: **Musik und Kunst Privatuniversität der Stadt Wien**.
+Concept and development: **Adrián Artacho**. Institutional identity: **Musik und Kunst Privatuniversität der Stadt Wien · Institut I**.
 
 - [`docs/SCALE-SOURCES.md`](docs/SCALE-SOURCES.md): exact Scala archive files, sources, and mapping rationale. Original historical descriptions and pitch data are preserved. Equal divisions are provided as ordinary `.scl` source files.
 - [`docs/BRANDING.md`](docs/BRANDING.md): official MUK logo source and university-use terms. The institutional logo is not included in any blanket software license.
